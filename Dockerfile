@@ -1,5 +1,5 @@
 # Usa a imagem oficial
-FROM metabase/metabase:metabase:v0.57.5
+FROM metabase/metabase:v0.57.5.x
 
 # Define o diretório de plugins
 ENV MB_PLUGINS_DIR=/app/plugins
