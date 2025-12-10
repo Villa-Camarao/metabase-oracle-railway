@@ -1,20 +1,25 @@
-# Usa a imagem que você escolheu
+# Mantém a versão que você está usando
 FROM metabase/metabase:v0.57.5.x
 
-# Define variável do diretório
+# Define o diretório de plugins
 ENV MB_PLUGINS_DIR=/app/plugins
 
-# Entra como root para poder copiar e alterar permissões
+# Muda para root para fazer as alterações
 USER root
 
-# Copia o driver NOVO (ojdbc11.jar)
-# Certifique-se que o arquivo na pasta tem EXATAMENTE este nome
+# Cria o diretório (caso não exista) para garantir
+RUN mkdir -p $MB_PLUGINS_DIR
+
+# Copia o driver ojdbc11.jar
 COPY ojdbc11.jar $MB_PLUGINS_DIR/
 
-# Dá permissão de leitura para TODOS (User, Group, Others)
-# Isso resolve o problema de permissão sem precisar do comando 'chown' que falhou
-RUN chmod 644 $MB_PLUGINS_DIR/ojdbc11.jar
+# A CORREÇÃO MÁGICA:
+# Usamos 'chown -R 2000:2000' (recursivo) usando o ID numérico.
+# Isso garante que a PASTA e o ARQUIVO pertençam ao usuário que roda o Metabase.
+# Funciona em qualquer Linux, independente do nome do usuário ser 'metabase' ou outro.
+RUN chown -R 2000:2000 $MB_PLUGINS_DIR && \
+    chmod 755 $MB_PLUGINS_DIR && \
+    chmod 644 $MB_PLUGINS_DIR/ojdbc11.jar
 
-# Define o usuário padrão do container pelo ID (2000)
-# Usar o ID é mais seguro que o nome 'metabase' em algumas versões do Linux
+# Volta para o usuário padrão do container (ID 2000)
 USER 2000
