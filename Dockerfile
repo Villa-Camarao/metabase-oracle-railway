@@ -1,15 +1,18 @@
 FROM metabase/metabase:latest
 
-# Torna-se root temporariamente para garantir que podemos ajustar permissões
+# Define o diretório de plugins
+ENV MB_PLUGINS_DIR=/app/plugins
+
+# Troca para root para mover arquivos e alterar permissões
 USER root
 
-# Define o diretório de plugins
-ENV MB_PLUGINS_DIR /app/plugins
+# Copia o driver (agora o ojdbc11.jar)
+COPY ojdbc11.jar $MB_PLUGINS_DIR/
 
-# Copia o driver e força permissão de leitura para todos (chmod 644)
-COPY ojdbc8.jar $MB_PLUGINS_DIR/
-RUN chmod 644 $MB_PLUGINS_DIR/ojdbc8.jar
+# Garante que o arquivo pertença ao usuário 'metabase' e tenha permissão de leitura
+# O 'chown' é crucial aqui para evitar erros de permissão silenciosos
+RUN chown metabase:metabase $MB_PLUGINS_DIR/ojdbc11.jar && \
+    chmod 644 $MB_PLUGINS_DIR/ojdbc11.jar
 
-# Volta para o usuário padrão do container para rodar a aplicação com segurança
-# (Geralmente é o usuário 2000 ou 'metabase' na imagem oficial)
+# Volta para o usuário padrão do Metabase para rodar a aplicação
 USER metabase
