@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  metabase:
+    # Usa a imagem customizada que você irá construir
+    build: .
+    # Se quiser usar o nome da imagem no Docker Hub, troque 'build: .' por 'image: SEU_USUARIO/metabase-oracle:latest'
+    container_name: metabase
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # Variáveis de Configuração do Metabase (Metadados no Postgres)
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: ${MB_DB_DBNAME}
+      MB_DB_HOST: postgres
+      MB_DB_PORT: 5432
+      MB_DB_USER: ${MB_DB_USER}
+      MB_DB_PASS: ${MB_DB_PASS}
+      # Outras variáveis importantes para a implantação
+      MB_SITE_URL: http://localhost:3000 # Altere para a URL do Railway após o deploy
+      MB_ENCRYPTION_SECRET_KEY: ${MB_ENCRYPTION_SECRET_KEY}
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:14-alpine # Imagem leve do Postgres
+    container_name: metabase_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${MB_DB_DBNAME}
+      POSTGRES_USER: ${MB_DB_USER}
+      POSTGRES_PASSWORD: ${MB_DB_PASS}
+    volumes:
+      - metabase-data:/var/lib/postgresql/data # Volume para persistência dos dados do Postgres
+
+volumes:
+  metabase-data:
