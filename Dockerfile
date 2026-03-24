@@ -1,5 +1,5 @@
 # Mantém a versão que você está usando
-FROM metabase/metabase:v0.57.5.x
+FROM metabase/metabase:v0.58.9.x
 
 # Define o diretório de plugins
 ENV MB_PLUGINS_DIR=/app/plugins
